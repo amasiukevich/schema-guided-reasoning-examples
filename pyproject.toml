@@ -1,0 +1,18 @@
+[project]
+name = "schema-guided-reasoning-examples"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = []
+
+[tool.black]
+line-length = 120
+
+[tool.isort]
+profile = "black"
+line_length = 120
+
+[tool.flake8]
+max-line-length = 120
+extend-ignore = ["E203", "E266"]
