@@ -2,18 +2,18 @@
 #  CMS in memory
 
 import json
-import os
 from typing import Annotated, List, Literal, Union
 
 from annotated_types import Le, MaxLen, MinLen
-from dotenv import load_dotenv
-from openai import OpenAI
 from pydantic import BaseModel, Field
 
 # using rich for pretty-printing in the console
 from rich.console import Console
 from rich.panel import Panel
 from rich.rule import Rule
+
+# Import model providers
+from models import create_model_provider, get_model_name
 
 DB = {
     "rules": [],
@@ -203,12 +203,12 @@ SYSTEM_PROMPT = f"""
 # ===============================================
 # Tasks Processing
 
-load_dotenv(".env")
-
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 console = Console()
-
 print = console.print
+
+# Initialize model provider
+model_provider = create_model_provider()
+model_name = get_model_name()
 
 
 def execute_tasks():
@@ -226,14 +226,18 @@ def execute_tasks():
         for i in range(20):
             step = f"step_{i+1}"
             print(f"Planning {step}... ", end="")
-            completion = client.beta.chat.completions.parse(
-                model="gpt-4o",
+            print(model_name)
+            completion = model_provider.chat_completion(
+                model=model_name,
                 response_format=NextStep,
                 messages=log,
-                max_completion_tokens=10000,
+                max_completion_tokens=1000,
             )
 
-            job = completion.choices[0].message.parsed
+            # Parse JSON response manually since OpenRouter returns JSON as string
+            response_content = completion.choices[0].message.content
+            job_dict = json.loads(response_content)
+            job = NextStep.model_validate(job_dict)
 
             if isinstance(job.function, ReportTaskCompletion):
                 print(f"[blue]agent {job.function.code}[/blue].")
