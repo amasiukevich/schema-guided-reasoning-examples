@@ -13,7 +13,7 @@ from rich.panel import Panel
 from rich.rule import Rule
 
 # Import model providers
-from models import create_model_provider, get_model_name
+from common.models import create_model_provider, get_model_name
 
 DB = {
     "rules": [],
